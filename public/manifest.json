@@ -1,0 +1,15 @@
+{
+  "short_name": "LiquidS",
+  "name": "LiquidS",
+  "icons": [
+    {
+      "src": "/Logo-1.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#222",
+  "theme_color": "#000000"
+}

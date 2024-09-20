@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+.selects {
+  @apply min-w-[100px] text-black font-bold p-1 outline-none rounded-sm;
+}

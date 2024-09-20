@@ -7,7 +7,7 @@ export default {
     extend: {
       fontFamily: 
       {
-        'body': ['Poppins', 'sans-serif']
+        'body': ['Outfit', 'sans-serif']
       }
     },
   },
