@@ -48,9 +48,6 @@ const Main = () => {
   return (
     <BrowserRouter>
       <App />
-      <button id="install-button" style={{ display: 'none' }}>
-        Install App
-      </button>
     </BrowserRouter>
   );
 };

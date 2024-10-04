@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
-import Create from "../Components/Concepts/Create";
-import Modify from "../Components/Concepts/Modify";
+import CreateConcepts from "../Components/Concepts/CreateConcepts";
+import ModifyConcepts from "../Components/Concepts/ModifyConcepts";
 import { FaArrowLeft } from "react-icons/fa6";
 
 export default function Concepts() {
@@ -11,8 +11,8 @@ export default function Concepts() {
   return (
     <div className="flex flex-col w-full relative p-10">
       {content && 
-        <NavLink to='/concepts' className='cursor-pointer'>
-          <FaArrowLeft className="fixed top-[10px] hover:text-cyan-500 duration-300 left-10"/>
+        <NavLink to='/concepts' title="Volver atras" className='fixed top-[10px] cursor-pointer'>
+          <FaArrowLeft className="hover:text-cyan-500 duration-300"/>
         </NavLink>
       }
 
@@ -20,14 +20,14 @@ export default function Concepts() {
         !content ? (
           <ul className="flex flex-wrap gap-5">
             <NavLink 
-              to={'/concepts?content=create'} 
+              to={'/concepts?content=create_concepts'} 
               className='hover:scale-105 hover:bg-cyan-500 duration font-bold duration-300 border w-[150px] h-[100px] rounded-xl flex justify-center items-center'
             >
               Crear concepto
             </NavLink>
 
             <NavLink 
-              to={'/concepts?content=modify'} 
+              to={'/concepts?content=modify_concepts'} 
               className='hover:scale-105 hover:bg-cyan-500 duration font-bold duration-300 border w-[150px] h-[100px] rounded-xl flex text-center items-center'
             >
               Modificar conceptos
@@ -35,8 +35,8 @@ export default function Concepts() {
           </ul>
         )
           
-        : content === 'create' ? <Create/>
-        : content === 'modify' ? <Modify/> 
+        : content === 'create_concepts' ? <CreateConcepts/>
+        : content === 'modify_concepts' ? <ModifyConcepts/> 
         : ''
       }
     </div>
