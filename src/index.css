@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .selects {
-  @apply min-w-[100px] w-full text-white focus:text-black p-1 outline-none rounded-sm border border-slate-700 focus:border-blue-700 bg-transparent;
+  @apply min-w-[100px] w-full text-white focus:bg-white focus:text-black p-1 outline-none rounded-sm border border-slate-700 focus:border-blue-700 bg-transparent;
 }
 
 b {

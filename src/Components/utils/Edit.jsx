@@ -19,7 +19,7 @@ export default function Edit({ concept, setEditMode }) {
 
   useEffect(() => {
     // Cargar todos los conceptos
-    axios.get('http://localhost:8080/api/concepts')
+    axios.get('http://localhost:8080/concepts')
       .then(res => {
         setConcepts(res.data);
         // Inicializar selectedBases con los conceptos que ya están en baseIds
@@ -76,7 +76,7 @@ export default function Edit({ concept, setEditMode }) {
       type: parseInt(type),
     };
 
-    axios.patch(`http://localhost:8080/api/concepts/${concept.id}`, formData)
+    axios.patch(`http://localhost:8080/concepts/${concept.id}`, formData)
       .then(response => {
         Swal.fire('Éxito', 'Concepto editado correctamente!', 'success');
         setEditMode(false)

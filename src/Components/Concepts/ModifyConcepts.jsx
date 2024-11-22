@@ -19,12 +19,21 @@ export default function Modify() {
   useEffect(() => {
     fetchConcepts();
   }, [])
-
+  
   const fetchConcepts = () => {
     setLoading(true);
-    axios.get('http://localhost:8080/api/concepts?timestamp=' + new Date().getTime())
+    axios.get('http://localhost:8080/concepts?t=' + new Date().getTime())
       .then(res => {
-        setConcepts(res.data);
+        // Convierte baseConceptIds a array si es necesario
+        const updatedConcepts = res.data.map(concept => {
+          return {
+            ...concept,
+            baseConceptIds: Array.isArray(concept.baseConceptIds) 
+              ? concept.baseConceptIds 
+              : JSON.parse(concept.baseConceptIds || "[]")
+          };
+        });
+        setConcepts(updatedConcepts);
         setLoading(false);
       })
       .catch(e => {
@@ -45,7 +54,7 @@ export default function Modify() {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.delete(`http://localhost:8080/api/concepts/${id}`)
+        axios.delete(`http://localhost:8080/concepts/${id}`)
           .then(() => {
             fetchConcepts(); 
             Swal.fire('Eliminado!', 'El concepto ha sido eliminado.', 'success');

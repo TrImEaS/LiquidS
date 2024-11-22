@@ -18,7 +18,7 @@ export default function Create() {
   const [manualValue, setManualValue] = useState('') // Nuevo estado para el valor manual
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/concepts')
+    axios.get('http://localhost:8080/concepts')
       .then(res => setConcepts(res.data))
       .catch(e => console.error(e))
   }, [])
@@ -70,7 +70,7 @@ export default function Create() {
       type: parseInt(type)
     }
 
-    axios.post('http://localhost:8080/api/concepts', formData)
+    axios.post('http://localhost:8080/concepts', formData)
       .then(response => {
         Swal.fire('Éxito', 'Concepto creado correctamente!', 'success');
       })
