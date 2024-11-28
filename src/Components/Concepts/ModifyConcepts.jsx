@@ -1,46 +1,20 @@
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
-import { useEffect, useState } from "react";
-import Pagination from "../utils/Pagination";
-import axios from "axios";
-import Swal from "sweetalert2";
+import { FaPencilAlt, FaTrashAlt } from "react-icons/fa"
+import { useState } from "react"
+import Pagination from "../utils/Pagination"
+import axios from "axios"
+import Swal from "sweetalert2"
 import Edit from '../utils/Edit'
-import '@sweetalert2/theme-bulma/bulma.css';
+import useConcepts from "../../Hooks/useConcepts"
+import '@sweetalert2/theme-bulma/bulma.css'
 
 export default function Modify() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(15);
+  const { concepts, getConcepts, conceptLoading } = useConcepts()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(15)
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('default')
-  const [concepts, setConcepts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [editMode, setEditMode] = useState(null); 
+  const [editMode, setEditMode] = useState(null) 
   const [concept, setConcept] = useState(0)
-
-  useEffect(() => {
-    fetchConcepts();
-  }, [])
-  
-  const fetchConcepts = () => {
-    setLoading(true);
-    axios.get('http://localhost:8080/concepts?t=' + new Date().getTime())
-      .then(res => {
-        // Convierte baseConceptIds a array si es necesario
-        const updatedConcepts = res.data.map(concept => {
-          return {
-            ...concept,
-            baseConceptIds: Array.isArray(concept.baseConceptIds) 
-              ? concept.baseConceptIds 
-              : JSON.parse(concept.baseConceptIds || "[]")
-          };
-        });
-        setConcepts(updatedConcepts);
-        setLoading(false);
-      })
-      .catch(e => {
-        console.error('Error al traer datos: ', e);
-        setLoading(false);
-      });
-  };
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -52,69 +26,76 @@ export default function Modify() {
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
-    }).then((result) => {
+    })
+    .then((result) => {
       if (result.isConfirmed) {
         axios.delete(`http://localhost:8080/concepts/${id}`)
           .then(() => {
-            fetchConcepts(); 
-            Swal.fire('Eliminado!', 'El concepto ha sido eliminado.', 'success');
+            getConcepts() 
+            Swal.fire('Eliminado!', 'El concepto ha sido eliminado.', 'success')
           })
           .catch(error => {
-            console.error("Error al eliminar el concepto: ", error);
-            Swal.fire('Error!', 'No se pudo eliminar el concepto.', 'error');
-          });
+            console.error("Error al eliminar el concepto: ", error)
+            Swal.fire('Error!', 'No se pudo eliminar el concepto.', 'error')
+          })
       }
-    });
-  };
+    })
+  }
 
   const handleEdit = (concept) => {
     setConcept(concept)
     setEditMode(true)
-  };
+  }
 
   const getType = (type) => {
-    if (type === 1) return 'Remunerativo';
-    if (type === 2) return 'No Remunerativo';
-    if (type === 3) return 'Descuentos';
-  };
+    if (type === 1) return 'Remunerativo'
+    if (type === 2) return 'No Remunerativo'
+    if (type === 3) return 'Descuentos'
+  }
 
   const getParsedFormula = (formula, baseConceptIds = []) => {
-    if (!formula) return null;
+    if (!formula) return null
 
     const baseNames = baseConceptIds.map(id => {
-      const baseConcept = concepts.find(concept => parseInt(concept.id) === parseInt(id));
-      return baseConcept ? baseConcept.name : 'BASE';
-    });
+      const baseConcept = concepts.find(concept => parseInt(concept.id) === parseInt(id))
+      return baseConcept ? baseConcept.name : 'BASE'
+    })
 
     baseNames.forEach((name, index) => {
-      formula = formula.replace(new RegExp(`base${index + 1}`, 'gi'), name);
-    });
-    return formula;
-  };
+      formula = formula.replace(new RegExp(`base${index + 1}`, 'gi'), name)
+    })
+    return formula
+  }
 
   const getConceptValueById = (id) => {
-    const concept = concepts.find((concept) => parseInt(concept.id) === parseInt(id));
-    return concept ? parseFloat(concept.formula) || 0 : 0;
-  };
+    const concept = concepts.find((concept) => parseInt(concept.id) === parseInt(id))
+    return concept ? parseFloat(concept.formula) || 0 : 0
+  }
 
   const evaluateFormula = (formula, baseConceptIds) => {
     if (!formula) return 0;
-
-    const baseValues = baseConceptIds.map(id => getConceptValueById(id));
-    
+  
+    const baseValues = baseConceptIds && Array.isArray(baseConceptIds)
+      ? baseConceptIds.map(id => getConceptValueById(id))
+      : [];
+  
     baseValues.forEach((value, index) => {
       formula = formula.replace(new RegExp(`base${index + 1}`, 'gi'), value);
     });
-
+  
     try {
-      const result = Function('"use strict";return (' + formula + ')')();
-      return result;
+      if (typeof formula === "string" && formula.trim()) {
+        const result = Function('"use strict";return (' + formula + ')')();
+        return result || 0
+      }
     } 
     catch (error) {
-      console.error('Error al evaluar la fórmula:', formula);
-      return 0;
+      console.error('Error al evaluar la fórmula:', error);
+      return 0
     }
-  };
+  
+    return 0;
+  }
 
   const filterConcepts = () => {
     if (filter === 'rem') 
@@ -130,34 +111,34 @@ export default function Modify() {
   }
 
   const sortConcepts = () => {
-    const arr = filterConcepts();
+    const arr = filterConcepts()
 
     if (sort === 'asc')
-      return arr.sort((a, b) => a.number - b.number);
+      return arr.sort((a, b) => a.number - b.number)
 
     if (sort === 'des')
-      return arr.sort((a, b) => b.number - a.number);
+      return arr.sort((a, b) => b.number - a.number)
 
     if (sort === 'a-z')
-      return arr.sort((a, b) => a.name.localeCompare(b.name));
+      return arr.sort((a, b) => a.name.localeCompare(b.name))
     
     if (sort === 'z-a')
-      return arr.sort((a, b) => b.name.localeCompare(a.name));
+      return arr.sort((a, b) => b.name.localeCompare(a.name))
 
-    return concepts;
+    return concepts
   }
 
-  const filteredConcepts = sortConcepts();
-  const displayedConcepts = filteredConcepts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const filteredConcepts = sortConcepts()
+  const displayedConcepts = filteredConcepts.filter(concept => parseInt(concept.active) === 1).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-  if (loading)
+  if (conceptLoading)
     return <div className="h-screen w-full flex items-center justify-center pb-[250px] text-xl">Cargando datos...</div>
 
   return (
     <div className="flex flex-col relative w-full h-full justify-center gap-10 items-center">
       {editMode && 
         <section className="w-[90%] h-full top-0 fixed flex items-center justify-center bg-opacity-90 z-10">
-          <Edit concept={concept} setEditMode={setEditMode}/>
+          <Edit concept={concept} setEditMode={setEditMode} fetchConcepts={getConcepts}/>
         </section>
       }
       <section className="flex gap-5 items-center">
@@ -217,8 +198,8 @@ export default function Modify() {
               <span className="text-cyan-500">
                 <b className="text-white">Bases: </b>
                 {concept.baseConceptIds.map(id => {
-                  const baseConcept = concepts.find(concept => parseInt(concept.id) === parseInt(id));
-                  return baseConcept ? baseConcept.name : 'N/A';
+                  const baseConcept = concepts.find(concept => parseInt(concept.id) === parseInt(id))
+                  return baseConcept ? baseConcept.name : 'N/A'
                 }).join(', ')}
               </span>
             )}
@@ -235,7 +216,12 @@ export default function Modify() {
         ))}
       </section>
 
-      <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalItems={filteredConcepts.length} itemsPerPage={itemsPerPage} />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(filteredConcepts.length / itemsPerPage)}
+        setCurrentPage={setCurrentPage}
+        setItemsPerPage={setItemsPerPage}
+      />
     </div>
-  );
+  )
 }

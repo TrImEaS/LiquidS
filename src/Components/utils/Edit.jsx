@@ -5,7 +5,7 @@ import Button from '../utils/Button';
 import Swal from 'sweetalert2';
 import '@sweetalert2/theme-bulma/bulma.css';
 
-export default function Edit({ concept, setEditMode }) {
+export default function Edit({ concept, setEditMode, fetchConcepts }) {
   const [name, setName] = useState(concept.name || '');
   const [number, setNumber] = useState(concept.number || '');
   const [baseIds, setBaseIds] = useState(concept.baseConceptIds || []); // Inicializa baseIds correctamente
@@ -79,6 +79,7 @@ export default function Edit({ concept, setEditMode }) {
     axios.patch(`http://localhost:8080/concepts/${concept.id}`, formData)
       .then(response => {
         Swal.fire('Éxito', 'Concepto editado correctamente!', 'success');
+        fetchConcepts();
         setEditMode(false)
       })
       .catch(error => {
